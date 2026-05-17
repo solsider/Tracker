@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    background-color: #0B1220;
+    color: #E2E8F0;
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #1E293B #0B1220;
+  }
+  *::-webkit-scrollbar { width: 6px; height: 6px; }
+  *::-webkit-scrollbar-track { background: #0B1220; }
+  *::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 3px; }
+
+  input, select, textarea {
+    background-color: #0B1220;
+    color: #E2E8F0;
+    border-color: #1E293B;
+  }
+  input::placeholder, textarea::placeholder { color: #94A3B8; }
+  input:focus, select:focus, textarea:focus { border-color: #3B82F6; }
+}
+
+@layer components {
+  .card {
+    @apply bg-dash-panel border border-dash-border rounded-card;
+  }
+  .card-glow {
+    @apply card shadow-glow-sm;
+  }
+
+  /* Rich text editor output */
+  .rich-text p { @apply mb-2 text-dash-text text-sm leading-relaxed; }
+  .rich-text p:last-child { @apply mb-0; }
+  .rich-text strong { @apply font-semibold text-white; }
+  .rich-text em { @apply italic; }
+  .rich-text code { @apply font-mono text-xs bg-dash-border px-1.5 py-0.5 rounded text-blue-300; }
+  .rich-text pre { @apply bg-dash-bg border border-dash-border rounded-lg p-3 my-2 overflow-x-auto; }
+  .rich-text pre code { @apply bg-transparent p-0 text-sm; }
+  .rich-text ul { @apply list-disc list-inside mb-2 space-y-0.5; }
+  .rich-text ol { @apply list-decimal list-inside mb-2 space-y-0.5; }
+  .rich-text li { @apply text-sm text-dash-text; }
+  .rich-text a { @apply text-dash-accent underline hover:text-dash-accent/80; }
+  .rich-text h1 { @apply text-lg font-bold text-white mb-2; }
+  .rich-text h2 { @apply text-base font-semibold text-white mb-1.5; }
+  .rich-text h3 { @apply text-sm font-semibold text-white mb-1; }
+  .rich-text blockquote { @apply border-l-2 border-dash-accent/50 pl-3 text-dash-muted italic my-2; }
+
+  /* Tiptap placeholder */
+  .tiptap p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    color: #94A3B8;
+    pointer-events: none;
+    float: left;
+    height: 0;
+  }
+}

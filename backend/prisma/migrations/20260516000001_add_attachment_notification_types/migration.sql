@@ -1,0 +1,3 @@
+-- AlterEnum
+ALTER TYPE "NotificationType" ADD VALUE 'ATTACHMENT_ADDED';
+ALTER TYPE "NotificationType" ADD VALUE 'ATTACHMENT_REMOVED';

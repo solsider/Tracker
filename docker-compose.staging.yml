@@ -1,0 +1,69 @@
+services:
+  postgres-staging:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tracker_staging
+      POSTGRES_USER: tracker_staging_user
+      POSTGRES_PASSWORD: ${STAGING_DB_PASSWORD:-staging-change-me}
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tracker_staging_user -d tracker_staging"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend-staging:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres-staging:
+        condition: service_healthy
+    ports:
+      - "3002:3001"
+    environment:
+      DATABASE_URL: postgresql://tracker_staging_user:${STAGING_DB_PASSWORD:-staging-change-me}@postgres-staging:5432/tracker_staging?schema=public
+      JWT_SECRET: ${STAGING_JWT_SECRET:?STAGING_JWT_SECRET is required}
+      JWT_REFRESH_SECRET: ${STAGING_JWT_REFRESH_SECRET:?STAGING_JWT_REFRESH_SECRET is required}
+      JWT_EXPIRES_IN: 7d
+      PORT: 3001
+      NODE_ENV: staging
+      FRONTEND_URL: ${STAGING_FRONTEND_URL:-http://localhost:3003}
+      LOG_LEVEL: debug
+    env_file:
+      - .env.staging
+
+  frontend-staging:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${STAGING_API_URL:-http://localhost:3002}
+    restart: unless-stopped
+    depends_on:
+      - backend-staging
+    ports:
+      - "3003:80"
+
+  # One-shot seed container — exits after seeding
+  seed-staging:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      postgres-staging:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://tracker_staging_user:${STAGING_DB_PASSWORD:-staging-change-me}@postgres-staging:5432/tracker_staging?schema=public
+      NODE_ENV: staging
+    command: sh -c "npx prisma db push --accept-data-loss && npm run db:seed"
+    profiles:
+      - seed
+
+volumes:
+  postgres_staging_data:

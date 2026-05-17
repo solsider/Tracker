@@ -1,0 +1,24 @@
+# Dev-only compose — starts ONLY the database.
+# The backend and frontend run natively via "npm run dev" for fast hot-reload.
+# Usage: automatically managed by dev.js (node dev.js)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tracker
+      POSTGRES_USER: tracker_user
+      POSTGRES_PASSWORD: tracker_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - tracker_postgres_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tracker_user -d tracker"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  tracker_postgres_dev:
