@@ -3,7 +3,7 @@ builder = "nixpacks"
 buildCommand = "cd backend && npm install --include=dev && npm run db:generate && npm run build && cd ../frontend && npm install --include=dev && npm run build"
 
 [deploy]
-startCommand = "cd backend && npx prisma migrate deploy && node dist/main.js"
+startCommand = "cd backend && (npx prisma migrate resolve --rolled-back 20260517000001_production_hardening_indexes || true) && npx prisma migrate deploy && node dist/main.js"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
