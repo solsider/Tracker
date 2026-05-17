@@ -151,6 +151,19 @@ function runSync(cmd, cwd, label) {
   ok(`${label} ✓`);
 }
 
+// ── Prisma client reset (OneDrive CLDFLT bypass) ──────────────────────────────
+// Windows' Cloud Files Filter driver (cldflt.sys) blocks atomic renames inside
+// OneDrive-managed folders even when OneDrive.exe isn't running. It only blocks
+// rename-over-existing-file, not fresh writes. Deleting the generated client
+// directory before `prisma generate` forces a clean write every time.
+function resetPrismaClient() {
+  const clientDir = path.join(BACKEND_DIR, 'node_modules', '.prisma', 'client');
+  if (!fs.existsSync(clientDir)) return;
+  try {
+    fs.rmSync(clientDir, { recursive: true, force: true });
+  } catch { /* ignore — generate will overwrite */ }
+}
+
 // ── Start database via Docker Compose ─────────────────────────────────────────
 function startDatabase(dockerMode) {
   info('Starting PostgreSQL (Docker)...');
@@ -292,19 +305,9 @@ async function main() {
   // Use "db push" in dev (idempotent, no migration history needed).
   // Production Docker uses "migrate deploy" via the Dockerfile CMD.
   //
-  // On Windows + OneDrive, prisma generate fails with EPERM on rename when the
-  // old query_engine DLL is locked by OneDrive's sync agent. Pre-deleting it
-  // avoids the rename-over-existing-file code path entirely.
-  const prismaClientDir = path.join(BACKEND_DIR, 'node_modules', '.prisma', 'client');
-  if (fs.existsSync(prismaClientDir)) {
-    try {
-      for (const f of fs.readdirSync(prismaClientDir)) {
-        if (f.startsWith('query_engine') || f.includes('.tmp')) {
-          try { fs.unlinkSync(path.join(prismaClientDir, f)); } catch { /* locked — prisma will overwrite */ }
-        }
-      }
-    } catch { /* ignore */ }
-  }
+  // Delete the generated Prisma client before regenerating so cldflt.sys
+  // cannot block the write (it only intercepts rename-over-existing-file).
+  resetPrismaClient();
   runSync('npx prisma generate', BACKEND_DIR, 'Prisma generate');
   runSync('npx prisma db push --accept-data-loss', BACKEND_DIR, 'Prisma db push');
 
