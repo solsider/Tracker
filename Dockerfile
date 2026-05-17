@@ -19,6 +19,9 @@ RUN npm run build
 FROM node:20-alpine
 WORKDIR /app/backend
 
+# OpenSSL required by Prisma schema engine on Alpine
+RUN apk add --no-cache openssl
+
 # Production dependencies only
 COPY backend/package*.json ./
 RUN npm install --omit=dev
@@ -26,6 +29,8 @@ RUN npm install --omit=dev
 # Prisma client binaries (generated in builder)
 COPY --from=backend-builder /app/backend/node_modules/.prisma ./node_modules/.prisma
 COPY --from=backend-builder /app/backend/node_modules/@prisma ./node_modules/@prisma
+# Prisma CLI + schema engine binary (needed for migrate deploy at startup)
+COPY --from=backend-builder /app/backend/node_modules/prisma ./node_modules/prisma
 
 # Compiled backend
 COPY --from=backend-builder /app/backend/dist ./dist
