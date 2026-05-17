@@ -17,6 +17,7 @@ RUN cd backend && npx prisma generate
 RUN cd backend && npm run build
 
 # Verify the compiled entry point exists (fail fast if build is broken)
+RUN ls -la /app/backend/dist/ 2>/dev/null || echo "dist/ directory does not exist"
 RUN test -f /app/backend/dist/main.js && echo "dist/main.js OK" || (echo "dist/main.js MISSING" && exit 1)
 
 WORKDIR /app/backend
