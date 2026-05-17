@@ -14,6 +14,7 @@
     "install:all": "npm install --prefix backend && npm install --prefix frontend",
     "postinstall": "npm run install:all",
     "build": "npm run build --prefix backend && npm run build --prefix frontend",
+    "build:railway": "npm run db:generate --prefix backend && npm run build --prefix backend && npm run build --prefix frontend",
     "test": "npm run test --prefix backend && npm run test --prefix frontend",
     "test:e2e": "npm run test --prefix e2e",
     "install:e2e": "npm install --prefix e2e && npx --prefix e2e playwright install --with-deps chromium",

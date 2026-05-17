@@ -100,7 +100,7 @@ function ReleaseCard({ release, projectId }: { release: Release; projectId: stri
         <div className="flex items-center gap-2 shrink-0">
           {release.status === 'DRAFT' && (
             <button
-              onClick={() => update.mutate({ id: release.id, status: 'RELEASED', releasedAt: new Date().toISOString() })}
+              onClick={() => update.mutate({ id: release.id, status: 'RELEASED' })}
               className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30"
             >
               Выпустить

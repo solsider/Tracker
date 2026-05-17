@@ -88,6 +88,17 @@ async function bootstrap() {
   // ── Graceful shutdown ───────────────────────────────────────────────────────
   app.enableShutdownHooks([ShutdownSignal.SIGTERM, ShutdownSignal.SIGINT]);
 
+  // ── Serve built React SPA in production ─────────────────────────────────────
+  if (isProd) {
+    const dist = join(__dirname, '..', '..', 'frontend', 'dist');
+    app.useStaticAssets(dist);
+    const skip = ['/api', '/uploads', '/health', '/metrics', '/telemetry', '/socket.io'];
+    app.use((req: any, res: any, next: any) => {
+      if (skip.some((p) => req.path.startsWith(p))) return next();
+      res.sendFile(join(dist, 'index.html'));
+    });
+  }
+
   const port = process.env.PORT || 3001;
   await app.listen(port);
   logger.log(`Server running on http://localhost:${port} [${process.env.NODE_ENV || 'development'}]`);
