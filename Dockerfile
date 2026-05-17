@@ -2,7 +2,7 @@
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN npm ci --include=dev
+RUN npm install --include=dev
 COPY frontend/ .
 RUN npm run build
 
@@ -10,7 +10,7 @@ RUN npm run build
 FROM node:20-alpine AS backend-builder
 WORKDIR /app/backend
 COPY backend/package*.json ./
-RUN npm ci --include=dev
+RUN npm install --include=dev
 COPY backend/ .
 RUN npx prisma generate
 RUN npm run build
@@ -21,7 +21,7 @@ WORKDIR /app/backend
 
 # Production dependencies only
 COPY backend/package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 # Prisma client binaries (generated in builder)
 COPY --from=backend-builder /app/backend/node_modules/.prisma ./node_modules/.prisma
