@@ -1,0 +1,30 @@
+# Node modules (installed fresh in Docker)
+**/node_modules
+
+# Build output (built fresh in Docker)
+**/dist
+frontend/build
+
+# Test & dev artifacts
+e2e/
+load-tests/
+coverage/
+
+# Local env files
+.env
+.env.local
+
+# Git
+.git
+.gitignore
+.github/
+
+# Editor / OS
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Backup / upload artifacts
+backups/
+backend/uploads/
