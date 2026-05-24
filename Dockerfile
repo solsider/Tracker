@@ -51,4 +51,4 @@ EXPOSE 3001
 # prisma db push: applies schema to fresh DB on first deploy; no-op on subsequent
 # deploys when schema is unchanged. For destructive schema changes, run
 # `npx prisma db push --accept-data-loss` manually via Railway shell.
-CMD ["sh", "-c", "npx prisma db push && node dist/main"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node dist/main"]
